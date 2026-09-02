@@ -20,7 +20,7 @@ jobs:
         with:
           flutter-version: '3.19.6'
 
-         - name: Install vcpkg deps
+      - name: Install vcpkg deps
         run: |
           git clone https://github.com/microsoft/vcpkg
           .\vcpkg\bootstrap-vcpkg.bat
