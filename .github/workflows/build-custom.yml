@@ -41,6 +41,23 @@ jobs:
           if (-not (Test-Path ".\vcpkg\installed\x64-windows-static\include\vpx\vp8.h")) { throw "vpx header missing" }
           Write-Host "All required headers found."
 
+      - name: Install flutter_rust_bridge_codegen
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid
+          flutter pub get
+          cd flutter
+          flutter pub get
+          cd ..
+
+      - name: Generate bridge
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          ~/.cargo/bin/flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart
+          if (-not (Test-Path ".\src\bridge_generated.rs")) { throw "bridge_generated.rs was not created" }
+
       - name: Build
         run: |
           python build.py --portable --flutter
