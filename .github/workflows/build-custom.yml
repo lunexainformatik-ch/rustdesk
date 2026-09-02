@@ -18,7 +18,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          channel: stable
 
       - name: Install nasm
         uses: ilammy/setup-nasm@v1
@@ -46,7 +46,6 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           cargo install flutter_rust_bridge_codegen --version 1.80.1 --features uuid
-          flutter pub get
           cd flutter
           flutter pub get
           cd ..
