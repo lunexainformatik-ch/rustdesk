@@ -14,6 +14,22 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Patch RustDesk server/key into source
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $configPath = "libs/hbb_common/src/config.rs"
+          $content = Get-Content -Raw $configPath
+
+          $newContent = $content -replace '(?s)pub const RENDEZVOUS_SERVERS:.*?;', "pub const RENDEZVOUS_SERVERS: &[&str] = &[`"$env:RENDEZVOUS_SERVER`"];"
+          $newContent = $newContent -replace '(?s)pub const RS_PUB_KEY:.*?;', "pub const RS_PUB_KEY: &str = `"$env:RS_PUB_KEY`";"
+
+          if ($newContent -eq $content) { throw "Patch did not change anything - pattern not found in config.rs" }
+
+          Set-Content -Path $configPath -Value $newContent
+          Write-Host "Patched RENDEZVOUS_SERVERS and RS_PUB_KEY into $configPath"
+          Select-String -Path $configPath -Pattern "RENDEZVOUS_SERVERS|RS_PUB_KEY"
+
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: subosito/flutter-action@v2
