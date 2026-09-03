@@ -18,7 +18,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version-file: flutter/pubspec.yaml
 
       - name: Install nasm
         uses: ilammy/setup-nasm@v1
@@ -56,14 +56,3 @@ jobs:
           $ErrorActionPreference = "Stop"
           ~/.cargo/bin/flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart
           if (-not (Test-Path ".\src\bridge_generated.rs")) { throw "bridge_generated.rs was not created" }
-
-      - name: Build
-        run: |
-          python build.py --portable --flutter
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rustdesk-lunexa-client
-          path: |
-            **/*.exe
