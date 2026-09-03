@@ -18,7 +18,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version-file: flutter/pubspec.yaml
+          channel: stable
+          flutter-version: 3.22.3
 
       - name: Install nasm
         uses: ilammy/setup-nasm@v1
@@ -41,6 +42,11 @@ jobs:
           if (-not (Test-Path ".\vcpkg\installed\x64-windows-static\include\vpx\vp8.h")) { throw "vpx header missing" }
           Write-Host "All required headers found."
 
+      - name: Patch pubspec for Flutter 3.22.3
+        shell: pwsh
+        run: |
+          (Get-Content flutter/pubspec.yaml) -replace 'extended_text: 14.0.0', 'extended_text: 13.0.0' | Set-Content flutter/pubspec.yaml
+
       - name: Install flutter_rust_bridge_codegen
         shell: pwsh
         run: |
@@ -56,3 +62,14 @@ jobs:
           $ErrorActionPreference = "Stop"
           ~/.cargo/bin/flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart
           if (-not (Test-Path ".\src\bridge_generated.rs")) { throw "bridge_generated.rs was not created" }
+
+      - name: Build
+        run: |
+          python build.py --portable --flutter
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustdesk-lunexa-client
+          path: |
+            **/*.exe
